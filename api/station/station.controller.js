@@ -1,0 +1,73 @@
+import { logger } from "../../services/logger.service.js"
+import { stationService } from "./station.service.js"
+
+export async function getStations(req, res) {
+  const { filterBy } = parseQueryParams(req.query)
+
+  console.log(filterBy)
+  try {
+    const stations = await stationService.query(filterBy)
+    return res.json(stations)
+  } catch (err) {
+    logger.error(err)
+    res.status(400).send(`Cannot get stations`)
+  }
+}
+
+export async function getStationById(req, res) {
+  const stationId = req.params.id
+  try {
+    const station = await stationService.getById(stationId)
+    if (!station) return res.status(404).send(`Station not found`)
+    res.json(station)
+  } catch (err) {
+    logger.error(err)
+    res.status(404).send(`Cannot find station`)
+  }
+}
+
+export async function saveStation(req, res) {
+  const station = { ...req.body }
+
+  if (req.params.id) {
+    station._id = req.params.id
+  }
+  try {
+    const savedStation = await stationService.save(station)
+    return res.json(savedStation)
+  } catch (err) {
+    logger.error(err)
+    res.status(404).send(`Cannot save station`)
+  }
+}
+
+export async function removeStation(req, res) {
+  const stationId = req.params.id
+  try {
+    await stationService.remove(stationId)
+    res.send({ msg: "Station removed successfully", stationId })
+  } catch (err) {
+    logger.error(err)
+    res.status(400).send(`Cannot remove station`)
+  }
+}
+
+function parseQueryParams(queryParams) {
+  const filterBy = {
+    txt: queryParams.txt || "",
+
+    tags: Array.isArray(queryParams.tags)
+      ? queryParams.tags
+      : queryParams.tags
+        ? [queryParams.tags]
+        : [],
+
+    artists: Array.isArray(queryParams.artists)
+      ? queryParams.artists
+      : queryParams.artists
+        ? [queryParams.artists]
+        : [],
+  }
+
+  return { filterBy }
+}
