@@ -34,7 +34,7 @@ if (process.env.NODE_ENV === "production") {
 
 import { setupAsyncLocalStorage } from "./middlewares/setupAls.middleware.js"
 
-app.all("*", setupAsyncLocalStorage)
+app.all("/{*splat}", setupAsyncLocalStorage)
 import { authRoutes } from "./api/auth/auth.routes.js"
 import { userRoutes } from "./api/user/user.routes.js"
 import { stationRoutes } from "./api/station/station.routes.js"
@@ -43,7 +43,7 @@ app.use("/api/auth", authRoutes)
 app.use("/api/user", userRoutes)
 app.use("/api/station", stationRoutes)
 
-app.get("*", (req, res) => {
+app.get("{*splat}", (req, res) => {
   res.sendFile(path.resolve("public/index.html"))
 })
 
