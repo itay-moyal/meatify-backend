@@ -4,10 +4,16 @@ import cors from "cors"
 import path, { dirname } from "path"
 import { fileURLToPath } from "url"
 
+import { logger } from "./services/logger.service.js"
+import { setupAsyncLocalStorage } from "./middlewares/setupAls.middleware.js"
+import { authRoutes } from "./api/auth/auth.routes.js"
+import { userRoutes } from "./api/user/user.routes.js"
+import { stationRoutes } from "./api/station/station.routes.js"
+import { songsRoutes } from "./api/song/song.routes.js"
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-import { logger } from "./services/logger.service.js"
 logger.info("server.js loaded...")
 
 const app = express()
@@ -32,16 +38,12 @@ if (process.env.NODE_ENV === "production") {
   app.use(cors(corsOptions))
 }
 
-import { setupAsyncLocalStorage } from "./middlewares/setupAls.middleware.js"
-
 app.all("/{*splat}", setupAsyncLocalStorage)
-import { authRoutes } from "./api/auth/auth.routes.js"
-import { userRoutes } from "./api/user/user.routes.js"
-import { stationRoutes } from "./api/station/station.routes.js"
 
 app.use("/api/auth", authRoutes)
 app.use("/api/user", userRoutes)
 app.use("/api/station", stationRoutes)
+app.use("/api/song", songsRoutes)
 
 app.get("{*splat}", (req, res) => {
   res.sendFile(path.resolve("public/index.html"))
