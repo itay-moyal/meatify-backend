@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb"
 
 import { dbService } from "../../services/db.service.js"
+import { songService } from "../song/song.service.js"
 import { logger } from "../../services/logger.service.js"
 
 import { makeId } from "../../services/util.service.js"
@@ -9,6 +10,9 @@ export const stationService = {
   query,
   getById,
   save,
+  remove,
+  addSongToStation,
+  removeSongFromStation,
 }
 
 async function query(filterBy = {}) {
@@ -59,7 +63,7 @@ async function save(stationToSave) {
     }
   } else {
     try {
-      if (!stationToSave.songIds) stationToSave.songIds = []
+      if (!stationToSave.songs) stationToSave.songs = []
 
       await collection.insertOne(stationToSave)
       return stationToSave
@@ -69,7 +73,6 @@ async function save(stationToSave) {
     }
   }
 }
-
 
 async function remove(stationId) {
   try {
@@ -81,7 +84,35 @@ async function remove(stationId) {
   }
 }
 
+async function addSongToStation(stationId, songId) {
+  const song = await songService.getById(songId)
+  if (!song) throw new Error("Song not found.")
 
+  const collection = await dbService.getCollection("stations")
+
+  const updatedStation = await collection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(stationId) },
+    { $addToSet: { songs: song } },
+    { returnDocument: "after" },
+  )
+
+  if (!updatedStation) throw new Error("Station not found.")
+
+  return updatedStation
+}
+
+async function removeSongFromStation(stationId, songId) {
+  const collection = await dbService.getCollection("stations")
+
+  const updatedStation = await collection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(stationId) },
+    { $pull: { songs: { _id: songId } } },
+    { returnDocument: "after" },
+  )
+  if (!updatedStation) throw new Error("Station not found.")
+
+  return updatedStation
+}
 
 function _buildCriteria(filterBy = {}) {
   if (!filterBy) return {}

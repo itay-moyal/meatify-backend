@@ -52,6 +52,36 @@ export async function removeStation(req, res) {
   }
 }
 
+export async function addSong(req, res) {
+  const stationId = req.params.id
+  const songId = req.body.id
+  try {
+    const updatedStation = await stationService.addSongToStation(
+      stationId,
+      songId,
+    )
+    return res.json(updatedStation)
+  } catch (err) {
+    logger.error(err)
+    res.status(400).send(`Cannot add song to station.`)
+  }
+}
+
+export async function removeSong(req, res) {
+  const songId = req.params.songId
+  const stationId = req.params.id
+  try {
+    const updatedStation = await stationService.removeSongFromStation(
+      stationId,
+      songId,
+    )
+    res.send({ msg: "Station removed song successfully", updatedStation })
+  } catch (err) {
+    logger.error(err)
+    res.status(400).send(`Cannot remove song from station.`)
+  }
+}
+
 function parseQueryParams(queryParams) {
   const filterBy = {
     txt: queryParams.txt || "",
