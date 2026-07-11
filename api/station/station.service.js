@@ -5,6 +5,7 @@ import { songService } from "../song/song.service.js"
 import { logger } from "../../services/logger.service.js"
 
 import { makeId } from "../../services/util.service.js"
+import { log } from "../../middlewares/logger.middleware.js"
 
 export const stationService = {
   query,
@@ -92,6 +93,7 @@ async function addSongToStation(stationId, songId) {
 
   const collection = await dbService.getCollection("stations")
 
+  
   const updatedStation = await collection.findOneAndUpdate(
     { _id: ObjectId.createFromHexString(stationId) },
     { $addToSet: { songs: song } },
@@ -109,7 +111,8 @@ async function removeSongFromStation(stationId, songId) {
   const updatedStation = await collection.findOneAndUpdate(
     { _id: ObjectId.createFromHexString(stationId) },
     { $pull: { songs: { _id: songId } } },
-    { returnDocument: "after" },
+    { returnDocument: "after",includeResultMetadata: false, },
+    
   )
   if (!updatedStation) throw new Error("Station not found.")
 

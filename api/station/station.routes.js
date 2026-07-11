@@ -12,6 +12,6 @@ stationRoutes.get("/:id",  getStationById)
 stationRoutes.post("/", saveStation) // Add Station
 stationRoutes.put("/:id", saveStation) // Update Station
 stationRoutes.delete("/:id", removeStation) // Remove Station
-stationRoutes.put("/:id/song", addSong) // Add song
+stationRoutes.put("/:id/song/:songId", addSong) // Add song
 stationRoutes.delete("/:id/song/:songId", removeSong) // Delete song
 stationRoutes.post("/getIds", getByIds)

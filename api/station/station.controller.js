@@ -6,7 +6,7 @@ export async function getStations(req, res) {
 
   try {
     const stations = await stationService.query(filterBy)
-    
+
     return res.json(stations)
   } catch (err) {
     logger.error(err)
@@ -28,8 +28,7 @@ export async function getStationById(req, res) {
 
 export async function saveStation(req, res) {
   const station = { ...req.body }
-  console.log(station);
-  
+  console.log(station)
 
   if (req.params.id) {
     station._id = req.params.id
@@ -45,6 +44,7 @@ export async function saveStation(req, res) {
 
 export async function removeStation(req, res) {
   const stationId = req.params.id
+
   try {
     await stationService.remove(stationId)
     res.send({ msg: "Station removed successfully", stationId })
@@ -56,7 +56,7 @@ export async function removeStation(req, res) {
 
 export async function addSong(req, res) {
   const stationId = req.params.id
-  const songId = req.body.id
+  const songId = req.params.songId
   try {
     const updatedStation = await stationService.addSongToStation(
       stationId,
@@ -70,14 +70,14 @@ export async function addSong(req, res) {
 }
 
 export async function removeSong(req, res) {
-  const songId = req.params.songId
   const stationId = req.params.id
+  const songId = req.params.songId
   try {
     const updatedStation = await stationService.removeSongFromStation(
       stationId,
       songId,
     )
-    res.send({ msg: "Station removed song successfully", updatedStation })
+     res.send(updatedStation)
   } catch (err) {
     logger.error(err)
     res.status(400).send(`Cannot remove song from station.`)

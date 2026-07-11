@@ -63,6 +63,7 @@ async function update(user) {
     const userToSave = {
       _id: ObjectId.createFromHexString(user._id),
       fullname: user.fullname,
+      username: user.username,
       isAdmin: user.isAdmin,
       imgUrl: user.imgUrl,
       likedStationIds: user.likedStationIds || [],
