@@ -28,7 +28,6 @@ export async function getStationById(req, res) {
 
 export async function saveStation(req, res) {
   const station = { ...req.body }
-  console.log(station)
 
   if (req.params.id) {
     station._id = req.params.id
