@@ -102,3 +102,12 @@ function parseQueryParams(queryParams) {
   return { filterBy }
 }
 
+export async function getByIds(req, res) {
+  try {
+    const { stationIds } = req.body
+    const stations = await stationService.getByIds(stationIds)
+    res.json(stations)
+  } catch (err) {
+    res.status(500).send({ err: "Failed to get stations" })
+  }
+}

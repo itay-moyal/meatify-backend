@@ -1,7 +1,7 @@
 import express from "express"
 
 // prettier-ignore
-import { requireAdmin,requireAuth } from '../../middlewares/requireAuth.middleware.js'
+import { requireAdmin, requireAuth } from '../../middlewares/requireAuth.middleware.js'
 import { getUser, getUsers, deleteUser, updateUser } from "./user.controller.js"
 
 export const userRoutes = express.Router()

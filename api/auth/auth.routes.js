@@ -1,6 +1,6 @@
 import express from "express"
 import { login, signup, logout } from "./auth.controller.js"
-console.log("auth routes loaded")
+// console.log("auth routes loaded")
 
 export const authRoutes = express.Router()
 

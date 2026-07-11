@@ -62,7 +62,6 @@ async function update(user) {
   try {
     const userToSave = {
       _id: ObjectId.createFromHexString(user._id),
-      username: user.username,
       fullname: user.fullname,
       isAdmin: user.isAdmin,
       imgUrl: user.imgUrl,
@@ -77,6 +76,7 @@ async function update(user) {
     throw err
   }
 }
+
 async function add(user) {
   try {
     const userExist = await getByUsername(user.username)

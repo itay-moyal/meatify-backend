@@ -3,7 +3,7 @@ import { logger } from "../../services/logger.service.js"
 
 export async function login(req, res) {
   const { username, password } = req.body
-  console.log(username, password)
+  // console.log(username, password)
   
   try {
     const user = await authService.login(username, password)
