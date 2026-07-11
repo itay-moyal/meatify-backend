@@ -7,8 +7,8 @@ import { getStations, getStationById, saveStation, removeStation, removeSong, ad
 
 export const stationRoutes = express.Router()
 
-stationRoutes.get("/", log, getStations)
-stationRoutes.get("/:id", log, getStationById)
+stationRoutes.get("/",  getStations)
+stationRoutes.get("/:id",  getStationById)
 stationRoutes.post("/", saveStation) // Add Station
 stationRoutes.put("/:id", saveStation) // Update Station
 stationRoutes.delete("/:id", removeStation) // Remove Station

@@ -4,9 +4,9 @@ import { stationService } from "./station.service.js"
 export async function getStations(req, res) {
   const { filterBy } = parseQueryParams(req.query)
 
-  console.log(filterBy)
   try {
     const stations = await stationService.query(filterBy)
+    
     return res.json(stations)
   } catch (err) {
     logger.error(err)
@@ -28,6 +28,8 @@ export async function getStationById(req, res) {
 
 export async function saveStation(req, res) {
   const station = { ...req.body }
+  console.log(station);
+  
 
   if (req.params.id) {
     station._id = req.params.id
