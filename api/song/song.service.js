@@ -2,13 +2,15 @@ import { ObjectId } from "mongodb"
 import axios from "axios"
 
 import { dbService } from "../../services/db.service.js"
-import { log } from "../../middlewares/logger.middleware.js"
+import { logger } from "../../services/logger.service.js"
 
 export const songService = {
   query,
   getById,
   getArtistInfoByName,
   getArtistInfoFromSong,
+  addStationRef,
+  removeStationRef,
 }
 
 async function query(filterBy = {}) {
@@ -19,7 +21,7 @@ async function query(filterBy = {}) {
     const songs = await collection.find(criteria).limit(50).toArray()
     return songs
   } catch (err) {
-    console.error("Cannot find songs", err)
+    logger.error("cannot find songs", err)
     throw err
   }
 }
@@ -27,7 +29,9 @@ async function query(filterBy = {}) {
 async function getById(songId) {
   try {
     const collection = await dbService.getCollection("songs")
-    const song = await collection.findOne({ _id: new ObjectId(songId) })
+    const song = await collection.findOne({
+      _id: ObjectId.createFromHexString(songId),
+    })
 
     if (!song) throw new Error(`Song ${songId} not found`)
 
@@ -37,7 +41,33 @@ async function getById(songId) {
 
     return song
   } catch (err) {
-    console.error(`Cannot find song ${songId}`, err)
+    logger.error(`cannot find song ${songId}`, err)
+    throw err
+  }
+}
+
+async function addStationRef(songId, stationId) {
+  try {
+    const collection = await dbService.getCollection("songs")
+    await collection.updateOne(
+      { _id: ObjectId.createFromHexString(songId) },
+      { $addToSet: { stationIds: stationId } }
+    )
+  } catch (err) {
+    logger.error(`cannot add station ref to song ${songId}`, err)
+    throw err
+  }
+}
+
+async function removeStationRef(songId, stationId) {
+  try {
+    const collection = await dbService.getCollection("songs")
+    await collection.updateOne(
+      { _id: ObjectId.createFromHexString(songId) },
+      { $pull: { stationIds: stationId } }
+    )
+  } catch (err) {
+    logger.error(`cannot remove station ref from song ${songId}`, err)
     throw err
   }
 }
@@ -64,7 +94,7 @@ async function getArtistInfoByName(artistName) {
       info.fans = Number(artist.stats?.playcount) || 0
     }
   } catch (err) {
-    console.warn(`Last.fm fetch failed for ${artistName}`, err.message)
+    logger.warn(`Last.fm fetch failed for ${artistName}`, err.message)
   }
 
   try {
@@ -77,7 +107,7 @@ async function getArtistInfoByName(artistName) {
       if (!info.fans) info.fans = deezerArtist.nb_fan || 0
     }
   } catch (err) {
-    console.warn(`Deezer artist fetch failed for ${artistName}`, err.message)
+    logger.warn(`Deezer artist fetch failed for ${artistName}`, err.message)
   }
 
   if (!info.bio) {
@@ -90,7 +120,9 @@ async function getArtistInfoByName(artistName) {
 
 async function getArtistInfoFromSong(songId) {
   const collection = await dbService.getCollection("songs")
-  const song = await collection.findOne({ _id: new ObjectId(songId) })
+  const song = await collection.findOne({
+    _id: ObjectId.createFromHexString(songId),
+  })
 
   if (!song) throw new Error('Song not found')
 
@@ -100,20 +132,15 @@ async function getArtistInfoFromSong(songId) {
   return getArtistInfoByName(artist.name)
 }
 
-function _buildCriteria(filterBy) {
+function _buildCriteria(filterBy = {}) {
+  if (!filterBy) return {}
   const criteria = {}
-
   if (filterBy.txt) {
-    const regex = new RegExp(filterBy.txt, 'i')
-    criteria.$or = [
-      { title: { $regex: regex } },
-      { album: { $regex: regex } },
-      { 'artists.name': { $regex: regex } },
-    ]
+    const txtRegex = { $regex: filterBy.txt, $options: "i" }
+    criteria.$or = [{ name: txtRegex }, { tags: txtRegex }]
   }
-
-  if (filterBy.tag) {
-    criteria.tags = { $in: [filterBy.tag] }
+  if (filterBy.tags && filterBy.tags.length > 0) {
+    criteria.tags = { $in: filterBy.tags }
   }
 
   return criteria

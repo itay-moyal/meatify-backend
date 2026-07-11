@@ -4,10 +4,9 @@ export async function getSongs(req, res) {
   try {
     const filterBy = {
       txt: req.query.txt || "",
-      tag: req.query.tag || "",
     }
 
-    const songs = await songService.query({})
+    const songs = await songService.query(filterBy)
     res.json(songs)
   } catch (err) {
     res.status(500).send({ err: "Failed to get songs" })

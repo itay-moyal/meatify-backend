@@ -2,15 +2,16 @@ import { logger } from "../../services/logger.service.js"
 import { stationService } from "./station.service.js"
 
 export async function getStations(req, res) {
-  const { filterBy } = parseQueryParams(req.query)
-
   try {
+    const filterBy = {
+      txt: req.query.txt || '',
+      tags: req.query.tags ? req.query.tags.split(',') : [],
+    }
     const stations = await stationService.query(filterBy)
-
-    return res.json(stations)
+    res.json(stations)
   } catch (err) {
-    logger.error(err)
-    res.status(400).send(`Cannot get stations`)
+    logger.error("Failed to get stations", err)
+    res.status(400).json({ error: "Failed to get stations" })
   }
 }
 
@@ -28,7 +29,6 @@ export async function getStationById(req, res) {
 
 export async function saveStation(req, res) {
   const station = { ...req.body }
-  console.log(station)
 
   if (req.params.id) {
     station._id = req.params.id
@@ -77,31 +77,11 @@ export async function removeSong(req, res) {
       stationId,
       songId,
     )
-     res.send(updatedStation)
+    res.send(updatedStation)
   } catch (err) {
     logger.error(err)
     res.status(400).send(`Cannot remove song from station.`)
   }
-}
-
-function parseQueryParams(queryParams) {
-  const filterBy = {
-    txt: queryParams.txt || "",
-
-    tags: Array.isArray(queryParams.tags)
-      ? queryParams.tags
-      : queryParams.tags
-        ? [queryParams.tags]
-        : [],
-
-    artists: Array.isArray(queryParams.artists)
-      ? queryParams.artists
-      : queryParams.artists
-        ? [queryParams.artists]
-        : [],
-  }
-
-  return { filterBy }
 }
 
 export async function getByIds(req, res) {
@@ -110,6 +90,17 @@ export async function getByIds(req, res) {
     const stations = await stationService.getByIds(stationIds)
     res.json(stations)
   } catch (err) {
+    logger.error(err)
     res.status(500).send({ err: "Failed to get stations" })
+  }
+}
+
+export async function getTags(req, res) {
+  try {
+    const tags = await stationService.getTagsData()
+    res.json(tags)
+  } catch (err) {
+    logger.error("Failed to get tags", err)
+    res.status(500).json({ error: "Failed to get tags" })
   }
 }
