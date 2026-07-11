@@ -27,13 +27,14 @@ export async function getSongById(req, res) {
 }
 
 export async function getArtist(req, res) {
-  const artists = req.query.name
-  console.log(artists);
+  console.log(req)
+  const artist = req.query.name
+  console.log(artist)
   
   
   try {
-    const info = await songService.getArtistInfo(artists)
-    console.log(info);
+    const info = await songService.getArtistInfo(artist)
+    console.log(info)
     
     res.json(info)
   } catch (err) {

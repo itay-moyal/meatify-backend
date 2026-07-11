@@ -5,4 +5,4 @@ export const songsRoutes = express.Router()
 
 songsRoutes.get("/", log, getSongs)
 songsRoutes.get("/:id", log, getSongById)
-songsRoutes.get("/:id/artists", log, getArtist)
+songsRoutes.get("/:id/artists/:id", log, getArtist)
