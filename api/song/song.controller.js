@@ -25,3 +25,18 @@ export async function getSongById(req, res) {
     res.status(500).send({ err: "Failed to get song" })
   }
 }
+
+export async function getArtist(req, res) {
+  const artists = req.query.name
+  console.log(artists);
+  
+  
+  try {
+    const info = await songService.getArtistInfo(artists)
+    console.log(info);
+    
+    res.json(info)
+  } catch (err) {
+    res.status(500).send("Failed")
+  }
+}
