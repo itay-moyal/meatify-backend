@@ -134,15 +134,15 @@ async function getByIds(stationIds) {
 }
 
 function _buildCriteria(filterBy = {}) {
-  if (!filterBy) return {}
   const criteria = {}
+
   if (filterBy.txt) {
     const txtRegex = { $regex: filterBy.txt, $options: "i" }
 
-    criteria.$or = [{ title: txtRegex }, { artists: txtRegex }]
-  }
-  if (filterBy.tags && filterBy.tags.length > 0) {
-    criteria.tags = { $in: filterBy.tags }
+    criteria.$or = [
+      { name: txtRegex },
+      { tags: txtRegex }
+    ]
   }
 
   return criteria

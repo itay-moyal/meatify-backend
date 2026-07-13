@@ -18,7 +18,7 @@ async function query(filterBy = {}) {
     const criteria = _buildCriteria(filterBy)
     const collection = await dbService.getCollection("songs")
 
-    const songs = await collection.find(criteria).limit(50).toArray()
+    const songs = await collection.find(criteria).limit(300).toArray()
     return songs
   } catch (err) {
     logger.error("cannot find songs", err)
@@ -132,14 +132,23 @@ async function getArtistInfoFromSong(songId) {
   return getArtistInfoByName(artist.name)
 }
 
+
 function _buildCriteria(filterBy = {}) {
   if (!filterBy) return {}
+
   const criteria = {}
+
   if (filterBy.txt) {
     const txtRegex = { $regex: filterBy.txt, $options: "i" }
-    criteria.$or = [{ name: txtRegex }, { tags: txtRegex }]
+
+    criteria.$or = [
+      { title: txtRegex },          // Search song title
+      { "artists.name": txtRegex }, // Search artist name
+      { tags: txtRegex },           // Search tags
+    ]
   }
-  if (filterBy.tags && filterBy.tags.length > 0) {
+
+  if (filterBy.tags?.length) {
     criteria.tags = { $in: filterBy.tags }
   }
 
