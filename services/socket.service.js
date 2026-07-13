@@ -31,6 +31,7 @@ export function setupSocketAPI(http) {
     })
 
     socket.on("set-user-socket", (userId) => {
+      socket.userId = userId.toString()
       logger.info(
         `Setting socket.userId = ${userId} for socket [id: ${socket.id}]`,
       )
@@ -68,11 +69,11 @@ async function emitToUser({ type, data, userId }) {
 // If possible, send to all sockets BUT not the current socket
 // Optionally, broadcast to a room / to all
 
-async function broadcast({ type, data, room = null, userId }) {
-  userId = userId.toString()
+async function broadcast({ type, data, room = null, userId = null }) {
   logger.info(`Broadcasting event: ${type}`)
 
-  const excludedSocket = await _getUserSocket(userId)
+  const excludedSocket = userId ? await _getUserSocket(userId.toString()) : null
+
   if (room && excludedSocket) {
     logger.info(`Broadcast to room ${room} excluding user: ${userId}`)
     excludedSocket.broadcast.to(room).emit(type, data)
