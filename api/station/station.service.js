@@ -96,7 +96,10 @@ async function addSongToStation(stationId, songId) {
   const station = await collection.findOne({ _id: ObjectId.createFromHexString(stationId) })
   if (!station) throw new Error("Station not found.")
 
-  const alreadyExists = station.songs?.some(s => s._id.toString() === songId)
+   const alreadyExists = station.songs.some((s) => {
+    const currId = s?._id?.toString?.() || s?.id?.toString?.()
+    return currId === songId
+  })
   if (alreadyExists) return station
 
   const updatedStation = await collection.findOneAndUpdate(
@@ -112,12 +115,21 @@ async function addSongToStation(stationId, songId) {
 async function removeSongFromStation(stationId, songId) {
   const collection = await dbService.getCollection("stations")
 
+  const station = await collection.findOne({
+    _id: ObjectId.createFromHexString(stationId),
+  })
+  if (!station) throw new Error("Station not found.")
+
+  const songs = (station.songs || []).filter((s) => {
+    const currId = s?._id?.toString?.() || s?.id?.toString?.()
+    return currId !== songId
+  })
+
   const updatedStation = await collection.findOneAndUpdate(
     { _id: ObjectId.createFromHexString(stationId) },
-    { $pull: { songs: { _id: ObjectId.createFromHexString(songId) } } },
-    { returnDocument: "after", includeResultMetadata: false },
+    { $set: { songs } },
+    { returnDocument: "after", includeResultMetadata: false }
   )
-  if (!updatedStation) throw new Error("Station not found.")
 
   await songService.removeStationRef(songId, stationId)
   return updatedStation

@@ -17,6 +17,7 @@
     "cryptr": "^6.4.0",
     "express": "^5.2.1",
     "follow-redirects": "^1.16.0",
-    "mongodb": "^7.4.0"
+    "mongodb": "^7.4.0",
+    "socket.io": "^4.8.3"
   }
 }

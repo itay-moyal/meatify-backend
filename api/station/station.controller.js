@@ -1,5 +1,6 @@
 import { logger } from "../../services/logger.service.js"
 import { stationService } from "./station.service.js"
+import { socketService } from "../../services/socket.service.js"
 
 export async function getStations(req, res) {
   try {
@@ -47,6 +48,12 @@ export async function removeStation(req, res) {
 
   try {
     await stationService.remove(stationId)
+
+    socketService.emitTo({
+      type: "station-removed",
+      data: stationId,
+    })
+
     res.send({ msg: "Station removed successfully", stationId })
   } catch (err) {
     logger.error(err)

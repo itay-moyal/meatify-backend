@@ -29,13 +29,13 @@ export function setupSocketAPI(http) {
       socket.leave(room)
       logger.info(`Socket ${socket.id} left room ${room}`)
     })
+    
 
     socket.on("set-user-socket", (userId) => {
       socket.userId = userId.toString()
       logger.info(
         `Setting socket.userId = ${userId} for socket [id: ${socket.id}]`,
       )
-      socket.userId = userId
     })
 
     socket.on("unset-user-socket", () => {

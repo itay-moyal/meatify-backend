@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import path, { dirname } from "path"
 import { fileURLToPath } from "url"
+import http from "http"
 
 import { logger } from "./services/logger.service.js"
 import { setupAsyncLocalStorage } from "./middlewares/setupAls.middleware.js"
@@ -11,16 +12,20 @@ import { userRoutes } from "./api/user/user.routes.js"
 import { stationRoutes } from "./api/station/station.routes.js"
 import { songsRoutes } from "./api/song/song.routes.js"
 
+import { setupSocketAPI } from "./services/socket.service.js"
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 logger.info("server.js loaded...")
 
 const app = express()
+const server = http.createServer(app)
 
 app.use(cookieParser())
 app.use(express.json())
-app.use(express.static("public"))
+
+setupSocketAPI(server)
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.resolve(__dirname, "public")))
@@ -45,12 +50,16 @@ app.use("/api/user", userRoutes)
 app.use("/api/station", stationRoutes)
 app.use("/api/song", songsRoutes)
 
-app.get("{*splat}", (req, res) => {
-  res.sendFile(path.resolve("public/index.html"))
-})
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.resolve(__dirname, "public")))
+
+  app.get("{*splat}", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "public", "index.html"))
+  })
+}
 
 const port = process.env.PORT || 3030
 
-app.listen(port, () => {
+server.listen(port, () => {
   logger.info("Server is running on port: " + port)
 })
