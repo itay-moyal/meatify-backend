@@ -5,8 +5,8 @@ import { socketService } from "../../services/socket.service.js"
 export async function getStations(req, res) {
   try {
     const filterBy = {
-      txt: req.query.txt || '',
-      tags: req.query.tags ? req.query.tags.split(',') : [],
+      txt: req.query.txt || "",
+      tags: req.query.tags ? req.query.tags.split(",") : [],
     }
     const stations = await stationService.query(filterBy)
     res.json(stations)
@@ -69,6 +69,13 @@ export async function addSong(req, res) {
       stationId,
       songId,
     )
+
+    socketService.emitTo({
+      type: "station-updated",
+      data: updatedStation,
+      room: `station:${stationId}`,
+    })
+
     return res.json(updatedStation)
   } catch (err) {
     logger.error(err)
