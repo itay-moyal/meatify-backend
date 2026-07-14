@@ -29,7 +29,6 @@ export function setupSocketAPI(http) {
       socket.leave(room)
       logger.info(`Socket ${socket.id} left room ${room}`)
     })
-    
 
     socket.on("set-user-socket", (userId) => {
       socket.userId = userId.toString()
@@ -41,6 +40,14 @@ export function setupSocketAPI(http) {
     socket.on("unset-user-socket", () => {
       logger.info(`Removing socket.userId for socket [id: ${socket.id}]`)
       delete socket.userId
+    })
+
+    socket.on("watch-user", (userId) => {
+      socket.join(`user:${userId}`)
+    })
+
+    socket.on("unwatch-user", (userId) => {
+      socket.leave(`user:${userId}`)
     })
   })
 }

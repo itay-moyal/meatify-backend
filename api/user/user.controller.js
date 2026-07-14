@@ -1,5 +1,6 @@
 import { userService } from "./user.service.js"
 import { logger } from "../../services/logger.service.js"
+import { socketService } from "../../services/socket.service.js"
 
 export async function getUser(req, res) {
   const userId = req.params.id
@@ -36,8 +37,14 @@ export async function deleteUser(req, res) {
 export async function updateUser(req, res) {
   try {
     const user = req.body
-    console.log('user: ', user)
     const savedUser = await userService.update(user)
+
+    socketService.emitTo({
+      type: "user-updated",
+      data: savedUser,
+      room: `user:${savedUser._id}`,
+    })
+
     res.send(savedUser)
   } catch (err) {
     logger.error("Failed to update user", err)
