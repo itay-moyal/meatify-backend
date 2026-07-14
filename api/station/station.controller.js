@@ -34,8 +34,21 @@ export async function saveStation(req, res) {
   if (req.params.id) {
     station._id = req.params.id
   }
+
   try {
     const savedStation = await stationService.save(station)
+    if (req.params.id) {
+      socketService.emitTo({
+        type: "station-updated",
+        data: savedStation,
+      })
+    } else {
+      socketService.emitTo({
+        type: "station-created",
+        data: savedStation,
+      })
+    }
+
     return res.json(savedStation)
   } catch (err) {
     logger.error(err)
@@ -91,6 +104,13 @@ export async function removeSong(req, res) {
       stationId,
       songId,
     )
+
+    socketService.emitTo({
+      type: "station-updated",
+      data: updatedStation,
+      room: `station:${stationId}`,
+    })
+
     res.send(updatedStation)
   } catch (err) {
     logger.error(err)
