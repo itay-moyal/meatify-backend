@@ -6,6 +6,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "start:dev": "nodemon --env-file=.env server.js",
     "dev": "nodemon --env-file=.env server.js"
   },
   "dependencies": {
