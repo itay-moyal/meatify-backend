@@ -32,16 +32,20 @@ if (process.env.NODE_ENV === "production") {
   console.log("__dirname: ", __dirname)
 } else {
   const corsOptions = {
-  origin: [
-    "http://127.0.0.1:5173",
-    "http://localhost:5173",
-    "http://127.0.0.1:3000",
-    "http://localhost:3000",
-    "https://meatify-frontend-production.up.railway.app",
-  ],
-  credentials: true,
-}
-app.use(cors(corsOptions))
+    origin: [
+      "http://127.0.0.1:5173",
+      "http://localhost:5173",
+      "http://127.0.0.1:3000",
+      "http://localhost:3000",
+      "https://meatify-frontend-production.up.railway.app",
+    ],
+    credentials: true,
+  }
+  app.use(cors(corsOptions))
+
+  if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.resolve(__dirname, "public")))
+  }
 }
 
 app.all("/{*splat}", setupAsyncLocalStorage)
