@@ -5,7 +5,9 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon --env-file=.env server.js",
+    "start": "nodemon server.js",
+    "start:dev": "nodemon --env-file=.env server.js",
+
     "server:dev": "nodemon server.js",
     "server:prod": "set NODE_ENV=production&&node server.js"
   },
