@@ -22,26 +22,36 @@ logger.info("server.js loaded...")
 const app = express()
 const server = http.createServer(app)
 
+app.set("trust proxy", 1)
 app.use(cookieParser())
 app.use(express.json())
 
-setupSocketAPI(server)
+const allowedOrigins = [
+  "http://127.0.0.1:5173",
+  "http://localhost:5173",
+  "http://127.0.0.1:3000",
+  "http://localhost:3000",
+  "https://meatify-frontend-production.up.railway.app",
+]
 
 const corsOptions = {
-    origin: [
-      "http://127.0.0.1:5173",
-      "http://localhost:5173",
-      "http://127.0.0.1:3000",
-      "http://localhost:3000",
-      "https://meatify-frontend-production.up.railway.app",
-    ],
-    credentials: true,
-  }
-  app.use(cors(corsOptions))
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error("Not allowed by CORS"))
+    }
+  },
+  credentials: true,
+}
 
-  if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.resolve(__dirname, "public")))
-  }
+app.use(cors(corsOptions))
+
+setupSocketAPI(server)
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.resolve(__dirname, "public")))
+}
 
 app.all("/{*splat}", setupAsyncLocalStorage)
 
