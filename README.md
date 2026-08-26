@@ -1,14 +1,14 @@
 # Meatify Backend
 
-The backend service for Meatify, a music platform for playlists and songs. The service provides a REST API, MongoDB persistence, encrypted cookie-based authentication, and Socket.IO events for real-time updates.
+The backend service for Meatify, a music platform for stations and songs. The service provides a REST API, MongoDB persistence, encrypted cookie-based authentication, and Socket.IO events for real-time updates.
 
 ## Features
 
-- User, playlist, and song management.
-- Playlist search by name or tag.
+- User, station, and song management.
+- Station search by name or tag.
 - Song search by title, artist, or tag.
-- Adding and removing songs from playlists.
-- Real-time playlist and user updates through Socket.IO.
+- Adding and removing songs from stations.
+- Real-time station and user updates through Socket.IO.
 - Artist metadata from Last.fm and Deezer.
 - Tag images from Unsplash.
 - Static frontend hosting from `public/` in production.
@@ -48,7 +48,7 @@ npm start    # Standard start
 
 The server listens on `http://localhost:3030` by default.
 
-There is currently no dedicated health endpoint. `GET /api/playlist` can be used as a basic connectivity and database check.
+There is currently no dedicated health endpoint. `GET /api/station` can be used as a basic connectivity and database check.
 
 ## Configuration
 
@@ -59,7 +59,7 @@ There is currently no dedicated health endpoint. `GET /api/playlist` can be used
 | `MONGO_URL` | Development: no; production: yes | `mongodb://127.0.0.1:27017` in development | MongoDB connection URL. |
 | `SECRET1` | Strongly recommended | `secret-Meat-encryption` | Encryption key used for the login cookie. Replace it in production. |
 | `LASTFM_API_KEY` | No | None | Enables artist biographies and statistics. |
-| `UNSPLASH_ACCESS_KEY` | No | None | Enables images for playlist tags. |
+| `UNSPLASH_ACCESS_KEY` | No | None | Enables images for station tags. |
 
 Never commit secrets. `.env` is excluded through `.gitignore`.
 
@@ -70,7 +70,7 @@ Never commit secrets. `.env` is excluded through `.gitignore`.
 ├── api/
 │   ├── auth/       # Registration, login, and logout
 │   ├── song/       # Song search and artist metadata
-│   ├── playlist/    # Playlists, tags, and song relationships
+│   ├── station/    # Stations, tags, and song relationships
 │   └── user/       # Users and authorization
 ├── config/         # Environment-specific MongoDB configuration
 ├── middlewares/    # Async local storage, authentication, and logging
@@ -114,32 +114,32 @@ curl -i -b cookies.txt http://localhost:3030/api/auth/logout
 | `PUT` | `/user/:id` | Authenticated user | Updates a user using the `_id` in the request body. |
 | `DELETE` | `/user/:id` | Admin | Deletes a user. |
 
-Common user fields include `_id`, `username`, `fullname`, `isAdmin`, `imgUrl`, `likedPlaylistIds`, `likedSongIds`, and `createdAt`.
+Common user fields include `_id`, `username`, `fullname`, `isAdmin`, `imgUrl`, `likedStationIds`, `likedSongIds`, and `createdAt`.
 
-### Playlists
+### Stations
 
 | Method | Endpoint | Query or body | Description |
 |---|---|---|---|
-| `GET` | `/playlist` | `?txt=rock` | Searches by playlist name or tag. |
-| `GET` | `/playlist/:id` | None | Returns a playlist by ID. |
-| `GET` | `/playlist/tags` | None | Returns tag titles, colors, and images. |
-| `POST` | `/playlist/by-ids` | `{ "playlistIds": ["..."] }` | Returns playlists by ID list. |
-| `POST` | `/playlist` | Playlist object | Creates a playlist. |
-| `PUT` | `/playlist/:id` | Playlist object | Updates a playlist. |
-| `DELETE` | `/playlist/:id` | None | Deletes a playlist. |
-| `POST` | `/playlist/:id/song/:songId` | None | Adds a song to a playlist. |
-| `DELETE` | `/playlist/:id/song/:songId` | None | Removes a song from a playlist. |
+| `GET` | `/station` | `?txt=rock` | Searches by station name or tag. |
+| `GET` | `/station/:id` | None | Returns a station by ID. |
+| `GET` | `/station/tags` | None | Returns tag titles, colors, and images. |
+| `POST` | `/station/by-ids` | `{ "stationIds": ["..."] }` | Returns stations by ID list. |
+| `POST` | `/station` | Station object | Creates a station. |
+| `PUT` | `/station/:id` | Station object | Updates a station. |
+| `DELETE` | `/station/:id` | None | Deletes a station. |
+| `POST` | `/station/:id/song/:songId` | None | Adds a song to a station. |
+| `DELETE` | `/station/:id/song/:songId` | None | Removes a song from a station. |
 
-When creating a playlist, missing `songs` and `tags` values default to empty arrays, and `savedCount` defaults to `0`.
+When creating a station, missing `songs` and `tags` values default to empty arrays, and `savedCount` defaults to `0`.
 
 Example:
 
 ```bash
-curl "http://localhost:3030/api/playlist?txt=rock"
+curl "http://localhost:3030/api/station?txt=rock"
 
 curl -H "Content-Type: application/json" \
-  -d '{"playlistIds":["64f000000000000000000001"]}' \
-  http://localhost:3030/api/playlist/by-ids
+  -d '{"stationIds":["64f000000000000000000001"]}' \
+  http://localhost:3030/api/station/by-ids
 ```
 
 ### Songs
@@ -178,8 +178,8 @@ Connect to the same host and port as the HTTP server, for example `http://localh
 
 | Event | Payload | Behavior |
 |---|---|---|
-| `playlist-watch` | `playlistId` | Joins `playlist:<playlistId>`. |
-| `playlist-unwatch` | `playlistId` | Leaves the playlist room. |
+| `station-watch` | `stationId` | Joins `station:<stationId>`. |
+| `station-unwatch` | `stationId` | Leaves the station room. |
 | `set-user-socket` | `userId` | Associates a user ID with the socket. |
 | `unset-user-socket` | None | Removes the user association. |
 | `watch-user` | `userId` | Joins `user:<userId>`. |
@@ -187,9 +187,9 @@ Connect to the same host and port as the HTTP server, for example `http://localh
 
 ### Server-to-Client Events
 
-- `playlist-created` after a playlist is created.
-- `playlist-updated` after a playlist is updated or its songs change.
-- `playlist-removed` after a playlist is deleted.
+- `station-created` after a station is created.
+- `station-updated` after a station is updated or its songs change.
+- `station-removed` after a station is deleted.
 - `user-updated` to the relevant user room after a user is updated.
 
 ## MongoDB
@@ -199,8 +199,8 @@ The database connection is initialized lazily and cached for the lifetime of the
 Collections currently used:
 
 - `user`: credentials, profile data, favorites, and authorization fields.
-- `playlists`: playlist data including `name`, `tags`, `songs`, and `savedCount`.
-- `songs`: song data, artists, tags, and playlist references.
+- `stations`: station data including `name`, `tags`, `songs`, and `savedCount`.
+- `songs`: song data, artists, tags, and station references.
 
 ## Logging
 
@@ -229,11 +229,11 @@ npm start
 There is currently no automated test script or dedicated health endpoint. Before deployment, verify:
 
 - Signup, login, and logout.
-- Playlist and song retrieval.
-- Playlist creation, update, and deletion.
-- Adding and removing a song from a playlist.
+- Station and song retrieval.
+- Station creation, update, and deletion.
+- Adding and removing a song from a station.
 - User updates and admin authorization.
-- Socket.IO connection and `playlist-updated` delivery.
+- Socket.IO connection and `station-updated` delivery.
 - MongoDB connectivity and creation of `logs/backend.log`.
 
 ## Security Notes
