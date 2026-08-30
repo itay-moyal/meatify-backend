@@ -32,6 +32,7 @@ const allowedOrigins = [
   "http://127.0.0.1:3000",
   "http://localhost:3000",
   "https://meatify-frontend-production.up.railway.app",
+  "https://meatify-frontend.onrender.com",
 ]
 
 const corsOptions = {
@@ -49,16 +50,12 @@ app.use(cors(corsOptions))
 
 setupSocketAPI(server)
 
-
-
 app.use("/api/auth", authRoutes)
 app.use("/api/user", userRoutes)
 app.use("/api/station", stationRoutes)
 app.use("/api/song", songsRoutes)
 
 app.all("/{*splat}", setupAsyncLocalStorage)
-
-
 
 const port = process.env.PORT || 3030
 
