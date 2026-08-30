@@ -49,24 +49,16 @@ app.use(cors(corsOptions))
 
 setupSocketAPI(server)
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.resolve(__dirname, "public")))
-}
 
-app.all("/{*splat}", setupAsyncLocalStorage)
 
 app.use("/api/auth", authRoutes)
 app.use("/api/user", userRoutes)
 app.use("/api/station", stationRoutes)
 app.use("/api/song", songsRoutes)
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.resolve(__dirname, "public")))
+app.all("/{*splat}", setupAsyncLocalStorage)
 
-  app.get("{*splat}", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "public", "index.html"))
-  })
-}
+
 
 const port = process.env.PORT || 3030
 
