@@ -48,14 +48,14 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 
+app.all("/{*splat}", setupAsyncLocalStorage)
 setupSocketAPI(server)
+
 
 app.use("/api/auth", authRoutes)
 app.use("/api/user", userRoutes)
 app.use("/api/station", stationRoutes)
 app.use("/api/song", songsRoutes)
-
-app.all("/{*splat}", setupAsyncLocalStorage)
 
 const port = process.env.PORT || 3030
 
