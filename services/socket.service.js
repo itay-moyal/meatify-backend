@@ -13,6 +13,7 @@ export function setupSocketAPI(http) {
           "http://127.0.0.1:3000",
           "http://localhost:3000",
           "https://meatify-frontend-production.up.railway.app",
+          "https://meatify-frontend.onrender.com"
         ]
 
         if (!origin || allowedOrigins.includes(origin)) {
